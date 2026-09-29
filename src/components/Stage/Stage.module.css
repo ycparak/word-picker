@@ -1,0 +1,27 @@
+.viewport {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  background-color: var(--color-page);
+  transition: background-color var(--fade-out-duration, 0ms) linear;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.viewport[data-dimmed] {
+  background-color: var(--color-page-dimmed);
+  transition-duration: var(--dim-in-duration, 0ms);
+}
+
+.viewport[data-custom-cursor],
+.viewport[data-custom-cursor] * {
+  cursor: var(--stage-cursor);
+  touch-action: none;
+}
+
+.stage {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(var(--stage-scale));
+}

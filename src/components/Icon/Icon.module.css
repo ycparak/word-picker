@@ -1,0 +1,6 @@
+.icon {
+  display: block;
+  flex: none;
+  fill: currentColor;
+  transform: translateY(var(--icon-ink-offset, 0));
+}

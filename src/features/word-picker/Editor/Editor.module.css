@@ -1,0 +1,29 @@
+.editor {
+  position: absolute;
+  top: 305px;
+  left: 208px;
+  width: 960px;
+  margin: 0;
+  color: var(--color-text);
+  font-family: var(--font-text);
+  font-size: var(--text-size);
+  font-weight: var(--text-weight);
+  line-height: var(--text-line-height);
+}
+
+.token {
+  transition: opacity var(--fade-out-duration, 0ms) linear;
+}
+
+.token[data-dimmed] {
+  opacity: var(--dimmed-content-opacity);
+  transition-duration: var(--dim-in-duration, 0ms);
+}
+
+.token[data-pickable]:hover {
+  color: var(--color-highlight);
+}
+
+.word[data-hidden] {
+  visibility: hidden;
+}

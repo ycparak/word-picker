@@ -1,0 +1,24 @@
+/* Design tokens measured from the prototype recording. */
+:root {
+  --font-text: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --font-serif: 'Newsreader', Georgia, serif;
+  --text-size: 69px;
+  --text-line-height: 80px;
+  --text-weight: 300;
+
+  --color-page: #ffffff;
+  --color-page-dimmed: #dadada;
+  --color-text: #000000;
+  --color-highlight: #d0021b;
+  --color-focus-ring: #4a90e2;
+
+  --color-toolbar: #d9d9d9;
+  --color-toolbar-icon: #646464;
+
+  --color-wheel-disc: #e9e9e9;
+  --color-wheel-outline: #aaaaaa;
+  --color-wheel-label: #444444;
+
+  /* Page content that sits behind the open wheel. */
+  --dimmed-content-opacity: 0.09;
+}

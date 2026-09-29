@@ -1,0 +1,42 @@
+.toolbar {
+  position: absolute;
+  top: 42px;
+  left: 360px;
+  display: flex;
+  align-items: center;
+  gap: 22.5px;
+  width: 562px;
+  height: 92px;
+  /* The prototype's icons sit slightly left of the pill's center. */
+  padding: 0 23px 0 15px;
+  border-radius: 46px;
+  background: var(--color-toolbar);
+  transition: opacity var(--fade-out-duration, 0ms) linear;
+}
+
+.toolbar[data-dimmed] {
+  opacity: var(--dimmed-content-opacity);
+  transition-duration: var(--dim-in-duration, 0ms);
+}
+
+.group {
+  display: flex;
+}
+
+.button {
+  display: grid;
+  place-items: center;
+  width: 57px;
+  height: 57px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: var(--color-toolbar-icon);
+  cursor: pointer;
+}
+
+.button:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: -2px;
+}

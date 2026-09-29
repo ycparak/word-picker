@@ -1,0 +1,55 @@
+.wheel {
+  position: absolute;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.graphic {
+  position: absolute;
+  overflow: visible;
+  opacity: 1;
+  /* Fades in once the page behind has dimmed. */
+  transition: opacity var(--wheel-fade-in-duration, 0ms) linear var(--dim-in-duration, 0ms);
+}
+
+@starting-style {
+  .graphic {
+    opacity: 0;
+  }
+}
+
+.wheel[data-closing] .graphic {
+  opacity: 0;
+  transition: opacity var(--fade-out-duration, 0ms) linear;
+}
+
+.discStop {
+  stop-color: var(--color-wheel-disc);
+}
+
+.outline {
+  fill: none;
+  stroke: var(--color-wheel-outline);
+  stroke-width: 1;
+}
+
+.label {
+  fill: var(--color-wheel-label);
+  font-family: var(--font-text);
+  font-size: 33.5px;
+  font-weight: 400;
+}
+
+.centerWord {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: translate(-50%, -50%);
+  color: var(--color-text);
+  font-family: var(--font-text);
+  font-size: var(--text-size);
+  font-weight: var(--text-weight);
+  line-height: var(--text-line-height);
+  white-space: nowrap;
+}
