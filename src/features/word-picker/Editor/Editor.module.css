@@ -1,26 +1,31 @@
 .editor {
-  position: absolute;
-  top: 305px;
-  left: 208px;
-  width: 960px;
-  margin: 0;
   color: var(--color-text);
-  font-family: var(--font-text);
+  font-family: var(--font-serif);
   font-size: var(--text-size);
-  font-weight: var(--text-weight);
   line-height: var(--text-line-height);
+  letter-spacing: var(--text-tracking);
+}
+
+.paragraph {
+  margin: 0;
+  transition: opacity var(--reveal-duration, 0ms) ease-out;
+}
+
+.paragraph + .paragraph {
+  margin-top: 1em;
+}
+
+/* Paragraphs after the first wait for the typing intro, then fade in. */
+.paragraph[data-pending] {
+  opacity: 0;
 }
 
 .token {
-  transition: opacity var(--fade-out-duration, 0ms) linear;
+  composes: dimmable from '../../../styles/dimmable.module.css';
 }
 
-.token[data-dimmed] {
-  opacity: var(--dimmed-content-opacity);
-  transition-duration: var(--dim-in-duration, 0ms);
-}
-
-.token[data-pickable]:hover {
+/* The whole token is the hover target, but only the word itself (not its punctuation) lights up. */
+.token[data-pickable]:hover .word {
   color: var(--color-highlight);
 }
 

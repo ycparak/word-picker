@@ -1,0 +1,16 @@
+.main {
+  /* Clears the floating toolbar, then leaves generous room above the title. */
+  padding: 168px 24px 120px;
+}
+
+/* The reading column. Also the positioning context for the wheel. */
+.document {
+  position: relative;
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+.header {
+  composes: dimmable from '../../styles/dimmable.module.css';
+  margin-bottom: 88px;
+}

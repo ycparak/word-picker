@@ -1,23 +1,31 @@
-/* Design tokens measured from the prototype recording. */
+/* Design tokens. Typography and colors follow the editorial reference; the picker keeps the
+   prototype's relationships (dim depth, disc and outline contrast) on the warmer palette. */
 :root {
-  --font-text: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  --font-serif: 'Newsreader', Georgia, serif;
-  --text-size: 69px;
-  --text-line-height: 80px;
-  --text-weight: 300;
+  --font-serif: 'Newsreader Variable', 'Newsreader', Georgia, serif;
+  --font-ui: 'Helvetica Neue', Helvetica, Arial, system-ui, sans-serif;
 
-  --color-page: #ffffff;
-  --color-page-dimmed: #dadada;
-  --color-text: #000000;
+  --text-size: 21px;
+  --text-line-height: 1.5;
+  --text-tracking: 0.01em;
+  --headline-size: 40px;
+  --headline-line-height: 1.1;
+
+  --color-page: #fbf8f0;
+  --color-page-dimmed: #dad7cf;
+  --color-text: #33302b;
+  --color-headline: #1f1b18;
+  --color-headline-accent: #b8aaa3;
   --color-highlight: #d0021b;
   --color-focus-ring: #4a90e2;
 
-  --color-toolbar: #d9d9d9;
-  --color-toolbar-icon: #646464;
+  --color-toolbar: #ebe6dd;
+  --color-toolbar-icon: #5f5850;
+  --color-toolbar-hover: rgb(60 50 40 / 8%);
+  --color-toolbar-pressed: rgb(60 50 40 / 14%);
 
-  --color-wheel-disc: #e9e9e9;
-  --color-wheel-outline: #aaaaaa;
-  --color-wheel-label: #444444;
+  --color-wheel-disc: #e9e6de;
+  --color-wheel-outline: #aca69e;
+  --color-wheel-label: #5a534c;
 
   /* Page content that sits behind the open wheel. */
   --dimmed-content-opacity: 0.09;

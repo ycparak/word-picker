@@ -1,12 +1,14 @@
-import type { PointerEvent } from 'react'
+import { Fragment, type PointerEvent } from 'react'
 import { revealTokens, type Token } from '../../../lib/tokens'
 import { isPickable } from '../editorState'
 import styles from './Editor.module.css'
 
 interface EditorProps {
-  tokens: readonly Token[]
-  /** Characters revealed so far by the intro typewriter (Infinity once it has finished). */
-  visibleChars: number
+  paragraphs: readonly (readonly Token[])[]
+  /** Characters of the first paragraph typed so far by the intro (Infinity once finished). */
+  typedChars: number
+  /** Shows the paragraphs after the first; they fade in once the intro has finished. */
+  revealRest: boolean
   /** Whether words respond to hover and press (the picker tool is armed). */
   pickable: boolean
   /** Fades the text back while the wheel is open. */
@@ -19,8 +21,9 @@ interface EditorProps {
 }
 
 export function Editor({
-  tokens,
-  visibleChars,
+  paragraphs,
+  typedChars,
+  revealRest,
   pickable,
   dimmed,
   activeTokenId,
@@ -28,35 +31,57 @@ export function Editor({
   onPickWord,
 }: EditorProps) {
   return (
-    <p className={styles.editor}>
-      {revealTokens(tokens, visibleChars).map(({ token, text, trailing }) => {
-        const isActive = token.id === activeTokenId
-        const canPick = pickable && isPickable(token)
+    <div className={styles.editor}>
+      {paragraphs.map((tokens, index) => {
+        const isLead = index === 0
+        const visibleTokens = revealTokens(tokens, isLead ? typedChars : Number.POSITIVE_INFINITY)
 
         return (
-          // The trailing space belongs to the word, so hovering the gap after a word still
-          // targets it (as in the prototype).
-          <span
-            key={token.id}
-            className={styles.token}
-            data-pickable={canPick || undefined}
-            data-dimmed={(dimmed && !isActive) || undefined}
-            onPointerDown={
-              canPick
-                ? (event) => {
-                    const word = event.currentTarget.firstElementChild
-                    if (word instanceof HTMLElement) onPickWord(token.id, word, event)
-                  }
-                : undefined
-            }
+          <p
+            key={tokens[0]?.id ?? index}
+            className={styles.paragraph}
+            data-pending={(!isLead && !revealRest) || undefined}
           >
-            <span className={styles.word} data-hidden={(isActive && hideActive) || undefined}>
-              {text}
-            </span>
-            {trailing}
-          </span>
+            {visibleTokens.map(({ token, leading, text, trailing }) => {
+              const isActive = token.id === activeTokenId
+              const canPick = pickable && isPickable(token)
+
+              return (
+                <Fragment key={token.id}>
+                  {leading && (
+                    <span className={styles.token} data-dimmed={dimmed || undefined}>
+                      {leading}
+                    </span>
+                  )}
+                  {/* Punctuation and space after a word belong to it, so hovering the gap after
+                      a word still targets it (as in the prototype). */}
+                  <span
+                    className={styles.token}
+                    data-pickable={canPick || undefined}
+                    data-dimmed={(dimmed && !isActive) || undefined}
+                    onPointerDown={
+                      canPick
+                        ? (event) => {
+                            const word = event.currentTarget.firstElementChild
+                            if (word instanceof HTMLElement) onPickWord(token.id, word, event)
+                          }
+                        : undefined
+                    }
+                  >
+                    <span
+                      className={styles.word}
+                      data-hidden={(isActive && hideActive) || undefined}
+                    >
+                      {text}
+                    </span>
+                    {trailing}
+                  </span>
+                </Fragment>
+              )
+            })}
+          </p>
         )
       })}
-    </p>
+    </div>
   )
 }

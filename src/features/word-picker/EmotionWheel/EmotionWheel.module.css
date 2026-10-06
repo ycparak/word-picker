@@ -1,5 +1,6 @@
 .wheel {
   position: absolute;
+  z-index: 2;
   width: 0;
   height: 0;
   pointer-events: none;
@@ -36,20 +37,20 @@
 
 .label {
   fill: var(--color-wheel-label);
-  font-family: var(--font-text);
-  font-size: 33.5px;
+  font-family: var(--font-ui);
   font-weight: 400;
 }
 
+/* Sits exactly over the word it stands in for, in the same type. */
 .centerWord {
   position: absolute;
   top: 0;
   left: 0;
   transform: translate(-50%, -50%);
   color: var(--color-text);
-  font-family: var(--font-text);
+  font-family: var(--font-serif);
   font-size: var(--text-size);
-  font-weight: var(--text-weight);
   line-height: var(--text-line-height);
+  letter-spacing: var(--text-tracking);
   white-space: nowrap;
 }

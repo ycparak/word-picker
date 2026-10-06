@@ -1,12 +1,13 @@
 # Word Picker
 
-A code recreation of the emotion word-picker prototype: type a sentence, pick the tool from the
-toolbar, press a word, and drag across an emotion wheel to swap it for a synonym. The further you
-drag from the center, the more intense the word.
+An emotion word picker for editorial text: pick the tool from the toolbar, press a highlighted
+word, and drag across an emotion wheel to swap it for a synonym. The further you drag from the
+center, the more intense the word.
 
-Built with React 19, TypeScript and Vite. All measurements (layout, colors, typography, timing)
-were taken from the reference recording and are documented in
-[`docs/prototype-spec.md`](docs/prototype-spec.md).
+Built with React 19, TypeScript and Vite. The interaction (wheel shape, intensity bands, motion
+timing) comes from the original prototype recording, measured in
+[`docs/prototype-spec.md`](docs/prototype-spec.md). The layout and typography are a conventional
+responsive web page: a floating toolbar with 24px icons over a reading column set in Newsreader.
 
 ## Getting started
 
@@ -30,8 +31,12 @@ pnpm dev
 
 ## How it works
 
-- **Stage.** The prototype was authored on a 1280×720 canvas. `Stage` renders that canvas and
-  scales it uniformly to fit the window, so every layout value can stay in the prototype's units.
+- **Layout.** `Page` owns the background (which dims while the wheel is open) and the tool
+  cursor. The reading column is capped at 560px (about 64 characters per line), and the wheel is
+  positioned inside it, so it scrolls with the text.
+- **Text.** `lib/tokens.ts` splits text into words, attaching punctuation and spaces to the word
+  before them ("way—in" becomes "way" + "—" and "in"). Replacements keep the original's
+  capitalization, so "Light" becomes "Sunshine", not "sunshine".
 - **State machine.** `editorState.ts` is a pure reducer holding the text and the picker state:
   `idle → armed → open → releasing → closing → idle`. Timers in `WordPicker.tsx` advance the
   release hold and the fade-out.
@@ -47,22 +52,23 @@ pnpm dev
 ```
 src/
   app/                 App root
-  components/          Generic UI: Stage, Toolbar, Icon
-  config/              Stage size and motion timings
-  data/                Emotions and synonym tables
+  components/          Generic UI: Page, Toolbar, Headline, Icon
+  config/              Motion timings
+  data/                Document text, emotions and synonym tables
   features/word-picker WordPicker, Editor, EmotionWheel, reducer, picker cursor
-  hooks/               useTypewriter, useFitScale, useMediaQuery
-  lib/                 Geometry, tokenizing, stage coordinates
-  styles/              Design tokens and global styles
+  hooks/               useTypewriter, useMediaQuery
+  lib/                 Geometry, tokenizing, coordinates
+  styles/              Design tokens, global styles, shared dimming
 ```
 
 ## Notes
 
-- Only "timid" has synonyms in the prototype (disgust, fear and joy). The other emotions for
-  "timid", and the synonyms for "dog", "jumped", "thundering" and "sound", are new content.
-  "The", "at" and "the" can't be picked.
-- A few quirks of the original design are reproduced on purpose: the vertically stretched "fear"
-  label, the raised text-color icon, and the spelling "malodorus".
+- The body text is chapter 1 of Charles Dickens's _A Tale of Two Cities_, one string per paragraph
+  in `src/data/document.ts`. The picker covers twelve words from the first paragraph: best, worst,
+  wisdom, foolishness, belief, incredulity, Light, Darkness, hope, despair, noisiest and
+  authorities (plus "light" later in the chapter, which shares Light's synonyms). Each has four
+  synonyms per emotion in `src/data/synonyms.ts`, written to fit the word's place in the sentence.
 - The formatting buttons (bold, lists, and so on) are visual only, as in the prototype.
-- With `prefers-reduced-motion`, the typing intro is skipped. <kbd>Esc</kbd> cancels the tool or
-  an open wheel.
+- The intro types out the first paragraph, sped up from the prototype's 40ms per character so it
+  never takes more than 2.4s, then fades in the rest of the chapter. With `prefers-reduced-motion`
+  everything shows at once. <kbd>Esc</kbd> cancels the tool or an open wheel.

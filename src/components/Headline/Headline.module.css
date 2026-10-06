@@ -1,0 +1,24 @@
+/* A two-line title: a regular line, then an italic accent line staggered to the right. The block
+   sits right of center, as in the editorial reference. */
+.headline {
+  width: fit-content;
+  margin: 0 18% 0 auto;
+  color: var(--color-headline);
+  font-family: var(--font-serif);
+  font-size: var(--headline-size);
+  font-weight: 400;
+  line-height: var(--headline-line-height);
+  letter-spacing: -0.01em;
+}
+
+.lead {
+  display: block;
+}
+
+.accent {
+  display: block;
+  padding-left: 1.6em;
+  color: var(--color-headline-accent);
+  font-style: italic;
+  font-weight: 500;
+}

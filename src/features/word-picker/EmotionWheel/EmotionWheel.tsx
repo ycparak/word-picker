@@ -1,30 +1,34 @@
 import { useId } from 'react'
 import { EMOTIONS } from '../../../data/emotions'
 import { annularSectorPath, polarToPoint, type Point } from '../../../lib/geometry'
-import { segmentBounds, WHEEL_GEOMETRY, type WheelSelection } from './wheelModel'
+import { labelPlacement, segmentBounds, WHEEL_GEOMETRY, type WheelSelection } from './wheelModel'
 import styles from './EmotionWheel.module.css'
 
-const { innerRadius, outerRadius, segmentGap, disc, tick, canvasRadius } = WHEEL_GEOMETRY
+const { innerRadius, outerRadius, segmentGap, disc, tick, label, canvasRadius } = WHEEL_GEOMETRY
 const HALF_GAP = segmentGap / 2
 const CANVAS_SIZE = canvasRadius * 2
 
-/** Opacity falloff of the center disc's feathered edge, as [radius, opacity] pairs. */
+/**
+ * Opacity across the center disc's feathered edge, as [progress, opacity] pairs where progress
+ * runs from the solid core (0) to the fully transparent rim (1).
+ */
 const DISC_FALLOFF: readonly (readonly [number, number])[] = [
   [0, 1],
-  [disc.solidRadius, 1],
-  [80, 0.83],
-  [84, 0.6],
-  [88, 0.37],
-  [92, 0.13],
-  [96, 0.03],
-  [disc.fadeRadius, 0],
+  [1 / 6, 0.83],
+  [2 / 6, 0.6],
+  [3 / 6, 0.37],
+  [4 / 6, 0.13],
+  [5 / 6, 0.03],
+  [1, 0],
 ]
+const discStopOffset = (progress: number) =>
+  (disc.solidRadius + progress * (disc.fadeRadius - disc.solidRadius)) / disc.fadeRadius
 
 /** Portion of each tick (from its inner end) that fades in. */
 const TICK_FADE = 0.3
 
 interface EmotionWheelProps {
-  /** Wheel center in stage coordinates. */
+  /** Wheel center, relative to the positioned container the wheel renders in. */
   center: Point
   selection: WheelSelection | null
   /** Word shown at the center, or null once it has been committed to the text. */
@@ -61,11 +65,12 @@ export function EmotionWheel({ center, selection, word, closing }: EmotionWheelP
             r={disc.fadeRadius}
             gradientUnits="userSpaceOnUse"
           >
-            {DISC_FALLOFF.map(([radius, opacity]) => (
+            <stop className={styles.discStop} offset={0} />
+            {DISC_FALLOFF.map(([progress, opacity]) => (
               <stop
-                key={radius}
+                key={progress}
                 className={styles.discStop}
-                offset={radius / disc.fadeRadius}
+                offset={discStopOffset(progress)}
                 stopOpacity={opacity}
               />
             ))}
@@ -138,16 +143,22 @@ export function EmotionWheel({ center, selection, word, closing }: EmotionWheelP
           />
         )}
 
-        {EMOTIONS.map(({ id, label, labelAnchor, labelScaleY = 1 }) => (
-          <text
-            key={id}
-            className={styles.label}
-            transform={`translate(${labelAnchor.x} ${labelAnchor.y}) scale(1 ${labelScaleY})`}
-            textAnchor="middle"
-          >
-            {label}
-          </text>
-        ))}
+        {EMOTIONS.map((emotion) => {
+          const { x, y, anchor } = labelPlacement(emotion.centerAngle)
+          return (
+            <text
+              key={emotion.id}
+              className={styles.label}
+              x={x}
+              y={y}
+              fontSize={label.fontSize}
+              textAnchor={anchor}
+              dominantBaseline="central"
+            >
+              {emotion.label}
+            </text>
+          )
+        })}
       </svg>
 
       {word !== null && <div className={styles.centerWord}>{word}</div>}

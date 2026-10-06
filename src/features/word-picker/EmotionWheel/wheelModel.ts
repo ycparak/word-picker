@@ -1,28 +1,34 @@
 import { EMOTIONS, SEGMENT_SWEEP_DEG, type Emotion } from '../../../data/emotions'
 import { INTENSITY_LEVELS, type Intensity } from '../../../data/synonyms'
-import { angleDelta, clamp, pointAngle, pointRadius, type Point } from '../../../lib/geometry'
+import {
+  angleDelta,
+  clamp,
+  pointAngle,
+  pointRadius,
+  polarToPoint,
+  type Point,
+} from '../../../lib/geometry'
 
-/** Wheel geometry in stage units, relative to the wheel center. */
+/**
+ * Wheel geometry in CSS px, relative to the wheel center. Sized for 20px body text; the
+ * proportions (disc, ring depth, gaps, bands) follow the original prototype.
+ */
 export const WHEEL_GEOMETRY = {
-  innerRadius: 115,
-  outerRadius: 253,
+  innerRadius: 66,
+  outerRadius: 146,
   /** Even-width gap between neighbouring segments. */
-  segmentGap: 12,
+  segmentGap: 8,
   /** The pointer selects a segment once it is this far from the center (just inside the ring). */
-  selectionRadius: 108,
+  selectionRadius: 62,
   /** Radial depth of each intensity band. */
-  intensityBandDepth: 25,
+  intensityBandDepth: 21,
   /** A selected segment always shows at least a sliver of fill. */
-  minFillRadius: 119,
-  disc: { solidRadius: 76, fadeRadius: 100 },
-  tick: { innerRadius: 82, outerRadius: 115, width: 3.5, blur: 0.5 },
-  /**
-   * The wheel centers on the word's optical center (half its cap height above the
-   * baseline), which sits slightly below the center of the word's text box.
-   */
-  wordCenterOffsetY: 2.5,
-  /** Half the extent of the SVG canvas; labels sit up to ~345 units from the center. */
-  canvasRadius: 360,
+  minFillRadius: 69,
+  disc: { solidRadius: 44, fadeRadius: 58 },
+  tick: { innerRadius: 47, outerRadius: 66, width: 2, blur: 0.4 },
+  label: { gap: 14, fontSize: 13 },
+  /** Half the extent of the SVG canvas, with room for the labels. */
+  canvasRadius: 240,
 } as const
 
 export interface WheelSelection {
@@ -32,9 +38,31 @@ export interface WheelSelection {
   fillRadius: number
 }
 
+export type LabelAnchor = 'start' | 'middle' | 'end'
+
+export interface LabelPlacement extends Point {
+  /** SVG `text-anchor`; the label is vertically centered on `y`. */
+  anchor: LabelAnchor
+}
+
 export function segmentBounds(emotion: Emotion): { start: number; end: number } {
   const halfSweep = SEGMENT_SWEEP_DEG / 2
   return { start: emotion.centerAngle - halfSweep, end: emotion.centerAngle + halfSweep }
+}
+
+/**
+ * Places a label just outside the ring on its segment's center line, growing away from the
+ * wheel: left-aligned on the right side, right-aligned on the left, centered at top and bottom.
+ */
+export function labelPlacement(angleDeg: number): LabelPlacement {
+  const { outerRadius, label } = WHEEL_GEOMETRY
+  const angle = (angleDeg * Math.PI) / 180
+  const cos = Math.cos(angle)
+  const sin = Math.sin(angle)
+  const anchor: LabelAnchor = Math.abs(cos) < 0.25 ? 'middle' : cos > 0 ? 'start' : 'end'
+  // Push vertically-placed labels out by half their height so they clear the ring evenly.
+  const radius = outerRadius + label.gap + (Math.abs(sin) * label.fontSize) / 2
+  return { ...polarToPoint(radius, angleDeg), anchor }
 }
 
 function isInSegmentGap(radius: number, offsetFromCenterDeg: number): boolean {

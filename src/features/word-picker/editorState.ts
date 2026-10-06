@@ -1,11 +1,11 @@
-import { getSynonym, hasSynonyms } from '../../data/synonyms'
+import { getSynonym, hasSynonyms, matchCase } from '../../data/synonyms'
 import type { Point } from '../../lib/geometry'
-import { replaceTokenText, tokenize, type Token } from '../../lib/tokens'
+import { findToken, replaceTokenText, tokenizeParagraphs, type Token } from '../../lib/tokens'
 import { resolveSelection, type WheelSelection } from './EmotionWheel/wheelModel'
 
 export interface ActivePick {
   tokenId: string
-  /** Wheel center in stage coordinates: the center of the picked word. */
+  /** Wheel center, relative to the document: the center of the picked word. */
   center: Point
   /** Pointer position relative to the wheel center; null when the pick was cancelled. */
   pointer: Point | null
@@ -23,7 +23,7 @@ export type PickerState =
 export type PickerPhase = PickerState['phase']
 
 export interface EditorState {
-  tokens: Token[]
+  paragraphs: Token[][]
   picker: PickerState
 }
 
@@ -42,22 +42,25 @@ export interface PickPreview {
   word: string
 }
 
-export function createEditorState(text: string): EditorState {
-  return { tokens: tokenize(text), picker: { phase: 'idle' } }
+export function createEditorState(paragraphs: readonly string[]): EditorState {
+  return { paragraphs: tokenizeParagraphs(paragraphs), picker: { phase: 'idle' } }
 }
 
 export function isPickable(token: Token): boolean {
   return hasSynonyms(token.key)
 }
 
-export function getPickPreview(tokens: readonly Token[], pick: ActivePick): PickPreview {
-  const token = tokens.find(({ id }) => id === pick.tokenId)
+export function getPickPreview(
+  paragraphs: readonly (readonly Token[])[],
+  pick: ActivePick,
+): PickPreview {
+  const token = findToken(paragraphs, pick.tokenId)
   const original = token?.text ?? ''
   const selection = pick.pointer ? resolveSelection(pick.pointer) : null
   if (!token || !selection) return { selection, word: original }
 
   const synonym = getSynonym(token.key, selection.emotion.id, selection.intensity)
-  return { selection, word: synonym ?? original }
+  return { selection, word: synonym ? matchCase(original, synonym) : original }
 }
 
 export function editorReducer(state: EditorState, action: EditorAction): EditorState {
@@ -78,7 +81,7 @@ export function editorReducer(state: EditorState, action: EditorAction): EditorS
 
     case 'pick': {
       if (picker.phase !== 'armed') return state
-      const token = state.tokens.find(({ id }) => id === action.tokenId)
+      const token = findToken(state.paragraphs, action.tokenId)
       if (!token || !isPickable(token)) return state
       const { tokenId, center, pointer } = action
       return { ...state, picker: { phase: 'open', tokenId, center, pointer } }
@@ -94,9 +97,11 @@ export function editorReducer(state: EditorState, action: EditorAction): EditorS
 
     case 'commit': {
       if (picker.phase !== 'releasing') return state
-      const { word } = getPickPreview(state.tokens, picker)
+      const { word } = getPickPreview(state.paragraphs, picker)
       return {
-        tokens: replaceTokenText(state.tokens, picker.tokenId, word),
+        paragraphs: state.paragraphs.map((tokens) =>
+          replaceTokenText(tokens, picker.tokenId, word),
+        ),
         picker: { ...picker, phase: 'closing' },
       }
     }

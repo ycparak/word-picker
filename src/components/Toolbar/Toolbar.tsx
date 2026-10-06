@@ -2,7 +2,7 @@ import { Icon } from '../Icon/Icon'
 import type { IconName } from '../Icon/icons'
 import styles from './Toolbar.module.css'
 
-const ICON_SIZE = 56
+const ICON_SIZE = 24
 
 interface ToolbarItem {
   icon: IconName
@@ -49,6 +49,7 @@ export function Toolbar({ pickerActive, onTogglePicker, dimmed }: ToolbarProps) 
               className={styles.button}
               aria-label={label}
               aria-disabled="true"
+              title={label}
             >
               <Icon name={icon} size={ICON_SIZE} />
             </button>
@@ -60,6 +61,7 @@ export function Toolbar({ pickerActive, onTogglePicker, dimmed }: ToolbarProps) 
         className={styles.button}
         aria-label="Emotion word picker"
         aria-pressed={pickerActive}
+        title="Emotion word picker"
         onClick={onTogglePicker}
       >
         <Icon name="filterTiltShift" size={ICON_SIZE} />

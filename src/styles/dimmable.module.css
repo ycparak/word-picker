@@ -1,0 +1,10 @@
+/* Page content that recedes while the emotion wheel is open. Compose into any element that
+   toggles `data-dimmed`. Entering the dim is quick; leaving it matches the wheel's fade-out. */
+.dimmable {
+  transition: opacity var(--fade-out-duration, 0ms) linear;
+}
+
+.dimmable[data-dimmed] {
+  opacity: var(--dimmed-content-opacity);
+  transition-duration: var(--dim-in-duration, 0ms);
+}

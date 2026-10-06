@@ -7,17 +7,14 @@
 }
 
 html,
-body,
-#root {
-  height: 100%;
+body {
   margin: 0;
 }
 
 body {
-  overflow: hidden;
   background: var(--color-page);
   color: var(--color-text);
-  font-family: var(--font-text);
+  font-family: var(--font-serif);
   text-rendering: optimizeLegibility;
 }
 

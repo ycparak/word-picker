@@ -1,5 +1,10 @@
 # Word Picker — prototype spec (measured from the reference video)
 
+> This is the measured record of the original prototype, which the first version of the app
+> reproduced pixel for pixel. The app has since moved to a responsive web layout with new
+> typography, colors, text and wheel sizes (see the README). The interaction model, band
+> structure and motion timings below still apply.
+
 All values are in CSS px on a **1280×720 stage** (the recording's resolution). The stage should be
 scaled uniformly to fit the viewport; the dimmed background must cover the full viewport.
 

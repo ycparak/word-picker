@@ -1,15 +1,40 @@
 import { describe, expect, it } from 'vitest'
-import { replaceTokenText, revealTokens, textLength, tokenize } from './tokens'
+import {
+  findToken,
+  replaceTokenText,
+  revealTokens,
+  textLength,
+  tokenize,
+  tokenizeParagraphs,
+} from './tokens'
 
-const SENTENCE = 'The timid dog'
+const SENTENCE = '“It was the best—of times.”'
+
+const render = (text: string, count = Number.POSITIVE_INFINITY) =>
+  revealTokens(tokenize(text), count)
+    .map(({ leading, text: word, trailing }) => leading + word + trailing)
+    .join('')
 
 describe('tokenize', () => {
-  it('splits words and keeps the whitespace after each one', () => {
-    expect(tokenize(SENTENCE)).toEqual([
-      { id: 'token-0', text: 'The', trailing: ' ', key: 'the' },
-      { id: 'token-1', text: 'timid', trailing: ' ', key: 'timid' },
-      { id: 'token-2', text: 'dog', trailing: '', key: 'dog' },
+  it('attaches punctuation and spaces to the word before them', () => {
+    expect(
+      tokenize(SENTENCE).map(({ leading, text, trailing }) => [leading, text, trailing]),
+    ).toEqual([
+      ['“', 'It', ' '],
+      ['', 'was', ' '],
+      ['', 'the', ' '],
+      ['', 'best', '—'],
+      ['', 'of', ' '],
+      ['', 'times', '.”'],
     ])
+  })
+
+  it('keys words by their lowercased form', () => {
+    expect(tokenize('Light').map(({ key }) => key)).toEqual(['light'])
+  })
+
+  it('keeps apostrophes inside words', () => {
+    expect(tokenize("don't take it").map(({ text }) => text)).toEqual(["don't", 'take', 'it'])
   })
 
   it('counts every character', () => {
@@ -18,23 +43,30 @@ describe('tokenize', () => {
 })
 
 describe('revealTokens', () => {
-  const tokens = tokenize(SENTENCE)
-  const render = (count: number) =>
-    revealTokens(tokens, count)
-      .map(({ text, trailing }) => text + trailing)
-      .join('')
-
   it('reveals text character by character', () => {
-    expect(render(0)).toBe('')
-    expect(render(6)).toBe('The ti')
-    expect(render(10)).toBe('The timid ')
-    expect(render(Number.POSITIVE_INFINITY)).toBe(SENTENCE)
+    expect(render(SENTENCE, 0)).toBe('')
+    expect(render(SENTENCE, 1)).toBe('“')
+    expect(render(SENTENCE, 7)).toBe('“It was')
+    expect(render(SENTENCE, 17)).toBe('“It was the best—')
+    expect(render(SENTENCE)).toBe(SENTENCE)
   })
 })
 
 describe('replaceTokenText', () => {
   it('replaces the text but keeps the original key', () => {
-    const [, timid] = replaceTokenText(tokenize(SENTENCE), 'token-1', 'elated')
-    expect(timid).toMatchObject({ text: 'elated', key: 'timid' })
+    const tokens = replaceTokenText(tokenize(SENTENCE), 'token-3', 'happiest')
+    expect(tokens[3]).toMatchObject({ text: 'happiest', key: 'best', trailing: '—' })
+  })
+})
+
+describe('tokenizeParagraphs', () => {
+  it('numbers tokens across paragraphs so ids stay unique', () => {
+    const paragraphs = tokenizeParagraphs(['It was', 'the best'])
+    expect(paragraphs.map((tokens) => tokens.map(({ id }) => id))).toEqual([
+      ['token-0', 'token-1'],
+      ['token-2', 'token-3'],
+    ])
+    expect(findToken(paragraphs, 'token-3')?.text).toBe('best')
+    expect(findToken(paragraphs, 'token-9')).toBeUndefined()
   })
 })

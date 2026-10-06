@@ -1,0 +1,21 @@
+.page {
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow-x: clip;
+  background-color: var(--color-page);
+  transition: background-color var(--fade-out-duration, 0ms) linear;
+}
+
+.page[data-dimmed] {
+  background-color: var(--color-page-dimmed);
+  transition-duration: var(--dim-in-duration, 0ms);
+}
+
+/* While a tool owns the pointer: its cursor everywhere, and no text selection or panning. */
+.page[data-custom-cursor],
+.page[data-custom-cursor] * {
+  cursor: var(--page-cursor);
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
